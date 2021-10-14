@@ -5,7 +5,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
     apt-get install -y --no-install-recommends apt-utils && \
     apt-get install -y --no-install-recommends sudo ca-certificates pkg-config curl wget bzip2 xz-utils make libarchive-tools doxygen gnupg python3 python3-pip && \
-    apt-get install -y --no-install-recommends git git-restore-mtime && \
+    apt-get install -y --no-install-recommends git git-restore-mtime gridsite-clients && \
     apt-get install -y --no-install-recommends gdebi-core python-is-python3 && \
     apt-get install -y --no-install-recommends cmake zip unzip && \
     apt-get install -y --no-install-recommends locales && \
@@ -21,27 +21,12 @@ RUN wget https://github.com/devkitPro/pacman/releases/latest/download/devkitpro-
     rm devkitpro-pacman.amd64.deb && \
     dkp-pacman -Scc --noconfirm
 
-ENV LANG en_US.UTF-8
-
 RUN dkp-pacman -Syyu --noconfirm switch-dev deko3d devkita64-cmake switch-cmake switch-pkg-config devkitA64 devkitA64-gdb switch-tools general-tools uam devkitARM devkitARM-gdb devkitarm-rules && \
     dkp-pacman -S --needed --noconfirm switch-portlibs && \
     dkp-pacman -S --needed --noconfirm devkitARM hactool && \
     dkp-pacman -Scc --noconfirm
 
-RUN mkdir /out && \
-    mkdir /token
-
-COPY start.sh /start.sh
-COPY neutos.sh /neutos.sh
-COPY atmosphere.sh /atmosphere.sh
-
+ENV LANG en_US.UTF-8
 ENV DEVKITPRO=/opt/devkitpro
 ENV PATH=${DEVKITPRO}/tools/bin:$PATH
 ENV DEVKITARM=/opt/devkitpro/devkitARM
-
-VOLUME ["/out"]
-VOLUME ["/token/gh.token"]
-VOLUME ["/token/gh.user"]
-VOLUME ["/token/gh.email"]
-VOLUME ["/compile_target.sh"]
-ENTRYPOINT ["/bin/sh","start.sh"]
