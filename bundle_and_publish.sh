@@ -34,6 +34,8 @@ cp hbmenu/hbmenu.nro ams/hbmenu.nro && \
 cp -r hekate/bootloader ams/ && \
 cp hekate/*.bin ams/payload.bin && \
 mv ams/atmosphere/reboot_payload.bin ams/bootloader/payloads/fusee.bin && \
+wget $(curl -s https://api.github.com/repos/schmue/Lockpick_RCM/releases/latest | grep "browser_download_url" | head -1 | cut -d '"' -f 4) -O ams/bootloader/payloads/Lockpick_RCM.bin && \
+wget $(curl -s https://api.github.com/repos/suchmememanyskill/TegraExplorer/releases/latest | grep "browser_download_url" | head -1 | cut -d '"' -f 4) -O ams/bootloader/payloads/TegraExplorer.bin && \
 cp ams/payload.bin ams/atmosphere/reboot_payload.bin && \
 cp suppository/tools/boot.dat ams/boot.dat && \
 cp suppository/tools/boot.ini ams/boot.ini && \
