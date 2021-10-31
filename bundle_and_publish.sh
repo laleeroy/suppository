@@ -23,8 +23,12 @@ mkdir hekate && \
 wget $(curl -s https://api.github.com/repos/CTCaer/hekate/releases/latest | grep "browser_download_url" | head -1 | cut -d '"' -f 4) -O hekate/temp.zip && \
 unzip hekate/temp.zip -d hekate && \
 rm hekate/temp.zip && \
-ls -1t suppository/patches/hekate_patches/*.ini | while read fn ; do cat "$fn" >> ams/bootloader/patches.ini; done && \
-cp -r suppository/patches/atmosphere ams/ && \
+cd suppository/patches && \
+python loader_patch.py && \
+cd ../.. && \
+sleep 5 && \
+cp -r suppository/patches/patches/bootloader ams && \
+cp -r suppository/patches/patches/atmosphere ams && \
 wget $(curl -s https://api.github.com/repos/borntohonk/aio-neutos-updater/releases/latest | grep "browser_download_url" | head -1 | cut -d '"' -f 4) -O updater/temp.zip && \
 unzip updater/temp.zip -d updater && \
 cp -r updater/switch ams/
@@ -34,7 +38,7 @@ cp hbmenu/hbmenu.nro ams/hbmenu.nro && \
 cp -r hekate/bootloader ams/ && \
 cp hekate/*.bin ams/payload.bin && \
 mv ams/atmosphere/reboot_payload.bin ams/bootloader/payloads/fusee.bin && \
-wget $(curl -s https://api.github.com/repos/schmue/Lockpick_RCM/releases/latest | grep "browser_download_url" | head -1 | cut -d '"' -f 4) -O ams/bootloader/payloads/Lockpick_RCM.bin && \
+wget $(curl -s https://api.github.com/repos/shchmue/Lockpick_RCM/releases/latest | grep "browser_download_url" | head -1 | cut -d '"' -f 4) -O ams/bootloader/payloads/Lockpick_RCM.bin && \
 wget $(curl -s https://api.github.com/repos/suchmememanyskill/TegraExplorer/releases/latest | grep "browser_download_url" | head -1 | cut -d '"' -f 4) -O ams/bootloader/payloads/TegraExplorer.bin && \
 cp ams/payload.bin ams/atmosphere/reboot_payload.bin && \
 cp suppository/tools/boot.dat ams/boot.dat && \
