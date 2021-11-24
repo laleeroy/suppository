@@ -21,15 +21,17 @@ mkdir updater && \
 mkdir ams/bootloader && \
 mkdir hekate && \
 wget $(curl -s https://api.github.com/repos/CTCaer/hekate/releases/latest | grep "browser_download_url" | head -1 | cut -d '"' -f 4) -O hekate/temp.zip && \
+sleep 10 && \
 unzip hekate/temp.zip -d hekate && \
 rm hekate/temp.zip && \
-cd suppository/patches && \
-python loader_patch.py && \
+cd suppository/SigPatches && \
+python scripts/loader_patch.py && \
 cd ../.. && \
-sleep 5 && \
-cp -r suppository/patches/patches/bootloader ams && \
-cp -r suppository/patches/patches/atmosphere ams && \
+sleep 10 && \
+cp -r suppository/SigPatches/SigPatches/bootloader ams && \
+cp -r suppository/SigPatches/SigPatches/atmosphere ams && \
 wget $(curl -s https://api.github.com/repos/borntohonk/aio-neutos-updater/releases/latest | grep "browser_download_url" | head -1 | cut -d '"' -f 4) -O updater/temp.zip && \
+sleep 10 && \
 unzip updater/temp.zip -d updater && \
 cp -r updater/switch ams/
 mkdir ams/atmosphere/hosts && \
@@ -39,7 +41,9 @@ cp -r hekate/bootloader ams/ && \
 cp hekate/*.bin ams/payload.bin && \
 mv ams/atmosphere/reboot_payload.bin ams/bootloader/payloads/fusee.bin && \
 wget $(curl -s https://api.github.com/repos/shchmue/Lockpick_RCM/releases/latest | grep "browser_download_url" | head -1 | cut -d '"' -f 4) -O ams/bootloader/payloads/Lockpick_RCM.bin && \
+sleep 10 && \
 wget $(curl -s https://api.github.com/repos/suchmememanyskill/TegraExplorer/releases/latest | grep "browser_download_url" | head -1 | cut -d '"' -f 4) -O ams/bootloader/payloads/TegraExplorer.bin && \
+sleep 10 && \
 cp ams/payload.bin ams/atmosphere/reboot_payload.bin && \
 cp suppository/tools/boot.dat ams/boot.dat && \
 cp suppository/tools/boot.ini ams/boot.ini && \
@@ -58,7 +62,7 @@ res=`curl --user "borntohonk:$GITHUB_TOKEN" -X POST https://api.github.com/repos
   \"tag_name\": \"$HOSVER-$AMSVER-$AMSHASH\",
   \"target_commitish\": \"master\",
   \"name\": \"NeutOS $AMSVER-$AMSHASH for FW version $HOSVER\",
-  \"body\": \"![Banner](https://github.com/borntohonk/NeutOS/raw/neutos/img/banner.png)\r\n\r\n- This release supports FW version ${HOSVER}, and sigpatches for loader, es, fs and nifm are included for this FW version. \r\n\r\n**- NOTE: This is a forked variant, it is not unedited atmosphere.** \r\n\r\n- This bundle comes pre-configured for emummc usage.\r\n\r\n- Neutos is a minor Atmosphere-fork, and cfw bundle maintained for myself.\r\n\r\n- There is an updater homebrew included now ( https://github.com/borntohonk/aio-neutos-updater )\r\n\r\n- Sigpatches are made and distributed at ( https://github.com/borntohonk/patches ), \r\n\r\nPlease file an issue with the github issue tracker, if there are any inquiries.\r\n\r\nThis github and release is automated, and was published with suppository ( https://github.com/borntohonk/suppository ) \",
+  \"body\": \"![Banner](https://github.com/borntohonk/NeutOS/raw/neutos/img/banner.png)\r\n\r\n- This release supports FW version ${HOSVER}, and sigpatches for loader, es, fs and nifm are included for this FW version. \r\n\r\n**- NOTE: This is a forked variant, it is not unedited atmosphere.** \r\n\r\n- This bundle comes pre-configured for emummc usage.\r\n\r\n- Neutos is a minor Atmosphere-fork, and cfw bundle maintained for myself.\r\n\r\n- There is an updater homebrew included now ( https://github.com/borntohonk/aio-neutos-updater )\r\n\r\n- Sigpatches are made and distributed at ( https://github.com/borntohonk/SigPatches ), \r\n\r\nPlease file an issue with the github issue tracker, if there are any inquiries.\r\n\r\nThis github and release is automated, and was published with suppository ( https://github.com/borntohonk/suppository ) \",
   \"draft\": false,
   \"prerelease\": false
 }"`
