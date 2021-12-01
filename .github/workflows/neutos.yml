@@ -1,0 +1,34 @@
+name: Bundle NeutOS
+
+on:
+  schedule: 
+    - cron:  '*/60 * * * *'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: borntohonk/suppository:latest
+    steps:
+      - name: Checkout suppository
+        uses: actions/checkout@v2
+      - name: Checkout SigPatches
+        uses: actions/checkout@v2
+        with:
+          repository: borntohonk/SigPatches
+          path: SigPatches
+      - name: Checkout hbl
+        uses: actions/checkout@v2
+        with:
+          repository: switchbrew/nx-hbloader
+          path: hbl
+      - name: Checkout hbmenu
+        uses: actions/checkout@v2
+        with:
+          repository: switchbrew/nx-hbmenu
+          path: hbmenu
+      - name: Bundle NeutOS
+        run: sh bundle_and_publish.sh >/dev/null 2>&1
+        env: 
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+          GITHUB_USER: ${{ secrets.PAT_USER }}

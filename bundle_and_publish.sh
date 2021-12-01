@@ -11,12 +11,6 @@ else
  HASH=$(curl --silent "https://api.github.com/repos/Atmosphere-NX/Atmosphere/releases" | grep "browser_download_url" | head -1 | grep -oE "\-([0-9a-f]{8})" | cut -c2-)
  git clone https://github.com/Atmosphere-NX/Atmosphere.git
  sleep 10
- git clone https://github.com/switchbrew/nx-hbmenu.git hbmenu
- sleep 10
- git clone https://github.com/switchbrew/nx-hbloader.git hbl
- sleep 10
- git clone --recurse-submodules https://github.com/borntohonk/suppository.git
- sleep 10
  git -C Atmosphere checkout $HASH
  AMSMAJORVER=$(grep 'define ATMOSPHERE_RELEASE_VERSION_MAJOR\b' Atmosphere/libraries/libvapours/include/vapours/ams/ams_api_version.h | tr -s [:blank:] | cut -d' ' -f3)
  AMSMINORVER=$(grep 'define ATMOSPHERE_RELEASE_VERSION_MINOR\b' Atmosphere/libraries/libvapours/include/vapours/ams/ams_api_version.h | tr -s [:blank:] | cut -d' ' -f3)
@@ -24,6 +18,8 @@ else
  HOS_MAJORVER=$(grep 'define ATMOSPHERE_SUPPORTED_HOS_VERSION_MAJOR\b' Atmosphere/libraries/libvapours/include/vapours/ams/ams_api_version.h | tr -s [:blank:] | cut -d' ' -f3)
  HOS_MINORVER=$(grep 'define ATMOSPHERE_SUPPORTED_HOS_VERSION_MINOR\b' Atmosphere/libraries/libvapours/include/vapours/ams/ams_api_version.h | tr -s [:blank:] | cut -d' ' -f3)
  HOS_MICROVER=$(grep 'define ATMOSPHERE_SUPPORTED_HOS_VERSION_MICRO\b' Atmosphere/libraries/libvapours/include/vapours/ams/ams_api_version.h | tr -s [:blank:] | cut -d' ' -f3)
+ HBLVER=$(grep -P "APP_VERSION\t:=\t" hbl/Makefile | head -1 | cut -c 16-20)
+ HBMENUVER=$(grep -P "export APP_VERSION\t:=\t" hbmenu/Makefile | head -1 | cut -c 23-27)
  HOSVER=$HOS_MAJORVER.$HOS_MINORVER.$HOS_MICROVER
  AMSVER=$AMSMAJORVER.$AMSMINORVER.$AMSMICROVER
  HEKATEVER=`cat hekate.version` && \
@@ -42,12 +38,12 @@ else
  sleep 10 && \
  unzip hekate/temp.zip -d hekate && \
  rm hekate/temp.zip && \
- cd suppository/SigPatches && \
- python scripts/loader_patch.py && \
- cd ../.. && \
+ cd SigPatches && \
+ python3 scripts/loader_patch.py && \
+ cd ../ && \
  sleep 10 && \
- cp -r suppository/SigPatches/SigPatches/bootloader ams && \
- cp -r suppository/SigPatches/SigPatches/atmosphere ams && \
+ cp -r SigPatches/SigPatches/bootloader ams && \
+ cp -r SigPatches/SigPatches/atmosphere ams && \
  wget $(curl -s https://api.github.com/repos/borntohonk/aio-neutos-updater/releases/latest | grep "browser_download_url" | head -1 | cut -d '"' -f 4) -O updater/temp.zip && \
  sleep 10 && \
  unzip updater/temp.zip -d updater && \
@@ -70,18 +66,18 @@ else
  wget $(curl -s https://api.github.com/repos/suchmememanyskill/TegraExplorer/releases/latest | grep "browser_download_url" | head -1 | cut -d '"' -f 4) -O ams/bootloader/payloads/TegraExplorer.bin && \
  sleep 10 && \
  cp ams/payload.bin ams/atmosphere/reboot_payload.bin && \
- cp suppository/tools/boot.dat ams/boot.dat && \
- cp suppository/tools/boot.ini ams/boot.ini && \
- cp suppository/configs/hekate_ipl.ini ams/bootloader/hekate_ipl.ini && \
- cp suppository/configs/emummc.txt ams/atmosphere/hosts/emummc.txt && \
- cp suppository/configs/sysmmc.txt ams/atmosphere/hosts/sysmmc.txt && \
- cp suppository/configs/exosphere.ini ams/exosphere.ini && \
+ cp tools/boot.dat ams/boot.dat && \
+ cp tools/boot.ini ams/boot.ini && \
+ cp configs/hekate_ipl.ini ams/bootloader/hekate_ipl.ini && \
+ cp configs/emummc.txt ams/atmosphere/hosts/emummc.txt && \
+ cp configs/sysmmc.txt ams/atmosphere/hosts/sysmmc.txt && \
+ cp configs/exosphere.ini ams/exosphere.ini && \
  mkdir out && \
  cd ams && \
  zip -r ../out/NeutOS-${AMSVER}-master-${AMSHASH}+hbl-${HBLVER}+hbmenu-${HBMENUVER}+hekate-${HEKATEVER}+patches.zip ./* && \
  cd .. && \
  echo "zip built, proceeding with publishing release"
- res=`curl --user "borntohonk:$GITHUB_TOKEN" -X POST https://api.github.com/repos/borntohonk/NeutOS/releases \
+ res=`curl --user "$GITHUB_USER:$GITHUB_TOKEN" -X POST https://api.github.com/repos/borntohonk/NeutOS/releases \
  -d "
  {
    \"tag_name\": \"$HOSVER-$AMSVER-$AMSHASH\",
@@ -97,5 +93,5 @@ else
  FILE=`ls out`
  ENCZIPFILE=`urlencode $FILE`
 
- curl --user "borntohonk:$GITHUB_TOKEN" -X POST https://uploads.github.com/repos/borntohonk/NeutOS/releases/${rel_id}/assets?name=$ENCZIPFILE --header 'Content-Type: application/zip ' --upload-file $ZIPFILE
+ curl --user "$GITHUB_USER:$GITHUB_TOKEN" -X POST https://uploads.github.com/repos/borntohonk/NeutOS/releases/${rel_id}/assets?name=$ENCZIPFILE --header 'Content-Type: application/zip ' --upload-file $ZIPFILE
 fi
