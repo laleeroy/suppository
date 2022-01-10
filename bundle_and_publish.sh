@@ -66,8 +66,6 @@ else
  wget $(curl -s https://api.github.com/repos/suchmememanyskill/TegraExplorer/releases/latest | grep "browser_download_url" | head -1 | cut -d '"' -f 4) -O ams/bootloader/payloads/TegraExplorer.bin && \
  sleep 10 && \
  cp ams/payload.bin ams/atmosphere/reboot_payload.bin && \
- cp tools/boot.dat ams/boot.dat && \
- cp tools/boot.ini ams/boot.ini && \
  cp configs/hekate_ipl.ini ams/bootloader/hekate_ipl.ini && \
  cp configs/emummc.txt ams/atmosphere/hosts/emummc.txt && \
  cp configs/sysmmc.txt ams/atmosphere/hosts/sysmmc.txt && \
