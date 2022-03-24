@@ -1,5 +1,29 @@
 This version of suppository exists to push releases to another repository using github workflows.
 
+The docker container is now semi-retired, as everything has been transitioned to git actions and had dependencies resolved.
+
+This container can still be used to compile atmosphere by using the following command, and output the compiled release (release .zip and fusee.bin) it in the directory you run the command from:
+
+```
+
+docker pull borntohonk/suppository:latest
+
+docker run --name suppository \
+ --rm \
+ --volume $PWD/.:/out \
+ borntohonk/suppository:latest /bin/bash -c \
+ "git clone https://github.com/switchbrew/libnx.git && \
+ make -C libnx -j$(nproc) && \
+ make -C libnx install && \
+ git clone https://github.com/Atmosphere-NX/Atmosphere.git && \
+ make -C Atmosphere -j$(nproc) && \
+ rm Atmosphere/out/nintendo_nx_arm64_armv8a/release/atmosphere*debug*.zip && \
+ cp Atmosphere/out/nintendo_nx_arm64_armv8a/release/atmosphere*.zip /out/ && \
+ cp Atmosphere/out/nintendo_nx_arm64_armv8a/release/fusee.bin /out/fusee.bin && \
+ chown 1000:1000 /out/fusee.bin && \
+ chown 1000:1000 /out/atmosphere*.zip"
+
+```
 
 ```
 
@@ -7,9 +31,8 @@ If you have any inquiries; file an issue with the github tracker.
 
 pre-requisites: 
 * must be able to use a text-editor (at very least) to make alterations to deploy to another repository.
-* create two secrets in github settings:
-* PAT_USER, containing the github account name belonging to the account you forked suppository with (example: borntohonk)
-* PAT_TOKEN, containing a github token with repository permissions in the target repository you want to upload releases to.
+* create a secret in github settings:
+* a github token saved in the repository secrets as "GH_TOKEN", with Repo permissions, and Org read/write permissions.
 
 ```
 
