@@ -49,6 +49,7 @@ jobs:
           git config --global advice.detachedHead false
           git config --global user.name 'borntohonk'
           git config --global user.email '6264306+borntohonk@users.noreply.github.com'
+          gh repo sync https://github.com/borntohonk/NeutOS --source https://github.com/Atmosphere-NX/Atmosphere
           AMSHASH=$(gh release view --repo github.com/Atmosphere-NX/Atmosphere --json assets --jq .assets[].url | grep -oE "\-([0-9a-f]{9})" | head -1 | cut -c2-)
           NEUTOSHASH=$(gh release view --repo github.com/borntohonk/NeutOS --json assets --jq .assets[].url | grep -oE "\-([0-9a-f]{9})" | head -1 | cut -c2-)
           if [ "$AMSHASH" = "$NEUTOSHASH" ]; then
