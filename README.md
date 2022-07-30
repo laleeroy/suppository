@@ -1,6 +1,4 @@
-This version of suppository exists to push releases to another repository using github workflows.
-
-The docker container is now semi-retired, as everything has been transitioned to git actions and had dependencies resolved.
+This repository is for the docker container "suppository" which exists as a full toolchain to compile homebrew for the Nintendo Switch.
 
 This container can still be used to compile atmosphere by using the following command, and output the compiled release (release .zip and fusee.bin) it in the directory you run the command from:
 
