@@ -3,6 +3,7 @@ FROM debian:unstable-slim
 ENV DEBIAN_FRONTEND=noninteractive
 
 COPY tools/hactool /bin/hactool
+COPY tools/hactoolnet /bin/hactoolnet
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends apt-utils apt-transport-https && \
