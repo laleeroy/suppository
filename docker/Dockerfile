@@ -26,7 +26,7 @@ RUN wget https://apt.devkitpro.org/install-devkitpro-pacman && \
     rm ./install-devkitpro-pacman && \
     yes | dkp-pacman -Scc
 
-RUN dkp-pacman -Syyu --noconfirm switch-dev deko3d devkita64-cmake switch-cmake switch-pkg-config devkitA64 devkitA64-gdb switch-tools general-tools uam devkitARM devkitARM-gdb devkitarm-rules && \
+RUN dkp-pacman -Syyu --noconfirm switch-dev deko3d devkita64-cmake switch-cmake switch-pkg-config devkitA64 devkitA64-gdb switch-tools general-tools uam devkitARM devkitARM-gdb devkitarm-rules devkita64-cmake devkitarm-cmake && \
     dkp-pacman -S --needed --noconfirm switch-portlibs && \
     dkp-pacman -S --needed --noconfirm devkitARM && \
     dkp-pacman -Scc --noconfirm
