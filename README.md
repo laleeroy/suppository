@@ -2,20 +2,31 @@ This repository is for the docker container "suppository" which exists as a full
 
 This container can still be used to compile atmosphere by using the following command, and output the compiled release (release .zip and fusee.bin) it in the directory you run the command from:
 
-Container rebuilt with latest dkp and packages last on: 21st of june 2024.
+Container rebuilt with latest dkp and packages the time of the last: 22nd of October 2024.
+
+Current example below is the build instructions that produce atmosphere 1.8.0 (22nd of october 2024), note the "haze" and "daybreak" .nro's are made before atmosphere because of issues with paralell thread makes in atmospheres's codebase.
 
 ```
 
 docker pull borntohonk/suppository:latest
 
-docker run --name suppository \
+sudo docker run --name suppository \
  --rm \
  --volume $PWD/.:/out \
  borntohonk/suppository:latest /bin/bash -c \
- "git clone https://github.com/switchbrew/libnx.git && \
+ "cd /build && \
+ git clone https://github.com/Atmosphere-NX/libnx.git && \
+ git -C libnx fetch && \
+ git -C libnx checkout 1900_support && \
  make -C libnx -j$(nproc) && \
  make -C libnx install && \
- git clone https://github.com/Atmosphere-NX/Atmosphere.git && \
+ git clone https://github.com/borntohonk/nx-hbloader.git && \
+ make -C nx-hbloader -j$(nproc) && \
+ git clone https://github.com/switchbrew/nx-hbmenu.git && \
+ make -C nx-hbmenu nx -j$(nproc) && \
+ git clone https://github.com/borntohonk/Atmosphere.git && \
+ make -C Atmosphere/troposphere/haze -j$(nproc) && \
+ make -C Atmosphere/troposphere/daybreak -j$(nproc) && \
  make -C Atmosphere -j$(nproc) && \
  rm Atmosphere/out/nintendo_nx_arm64_armv8a/release/atmosphere*debug*.zip && \
  cp Atmosphere/out/nintendo_nx_arm64_armv8a/release/atmosphere*.zip /out/ && \
@@ -25,16 +36,39 @@ docker run --name suppository \
 
 ```
 
+
+below are instructions that instead use build.sh and pack.sh from this repository, which additionally bundles hekate, hbl, hbmenu, atmosphere and tegraexplorer, as well as some configs, such as exosphere.ini and dnsmitm.
+
+
 ```
+
+sudo docker run --name suppository \
+ --rm \
+ --volume $PWD/.:/out \
+ borntohonk/suppository:latest /bin/bash -c \
+ "cd /build && \
+ wget https://github.com/borntohonk/suppository/raw/refs/heads/master/build.sh && \
+ wget https://github.com/borntohonk/suppository/raw/refs/heads/master/pack.sh && \
+ sh ./build.sh"
+
+```
+
 
 If you have any inquiries; file an issue with the github tracker.
 
-pre-requisites: 
-* must be able to use a text-editor (at very least) to make alterations to deploy to another repository.
-* create a secret in github settings:
-* a github token saved in the repository secrets as "GH_TOKEN", with Repo permissions, and Org read/write permissions.
+workflow related instructions:
 
-```
+The following should be filed under https://github.com/borntohonk/suppository/settings/secrets/actions as "Repository Secrets"
+pre-requisites: 
+
+* a github Private Access Token(PAT) saved in the repository as "GH_TOKEN", with Repo permissions, and Org read/write permissions is required to deploy to a repository of choice.
+
+the following should be filed under https://github.com/borntohonk/suppository/settings/variables/actions as "Repository Variables"
+* Atmosphere source repository you want to compile defined as "ATMOSPHERE_REPOSITORY", examples: borntohonk/Atmosphere, Atmosphere-NX/Atmosphere
+* target repository defined as "TARGET_REPOSITORY", for where to deploy the github release to. example: borntohonk/Atmosphere
+* libnx repository defined as "LIBNX_REPOSITORY", for which repository to use as a base. examples: switchbrew/libnx, Atmosphere-NX/libnx
+* libnx branch to use, defined as "LIBNX_BRANCH", for which branch to use. examples: master, 1900_support
+
 
 Credits: [@borntohonk](https://github.com/borntohonk)
 license: whichever applicable to whichever files and MIT on whatever else (not that there's anything worth licensing here)

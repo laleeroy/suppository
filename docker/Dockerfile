@@ -4,6 +4,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 COPY tools/hactool /bin/hactool
 COPY tools/hactoolnet /bin/hactoolnet
+COPY configs /build/configs
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends apt-utils apt-transport-https && \
@@ -31,7 +32,7 @@ RUN dkp-pacman -Syyu --noconfirm switch-dev deko3d devkita64-cmake switch-cmake 
     dkp-pacman -S --needed --noconfirm devkitARM && \
     dkp-pacman -Scc --noconfirm
 
-ENV LANG en_US.UTF-8
+ENV LANG=en_US.UTF-8
 ENV DEVKITPRO=/opt/devkitpro
 ENV PATH=${DEVKITPRO}/tools/bin:$PATH
 ENV DEVKITARM=/opt/devkitpro/devkitARM
