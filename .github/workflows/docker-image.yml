@@ -1,0 +1,27 @@
+name: Build Docker Image
+on:
+  workflow_dispatch:
+
+jobs:
+    build:
+      name: push docker image to ghcr.io
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v4
+
+        - name: Log in to GitHub Container Registry
+          uses: docker/login-action@v3
+          with:
+            registry: ghcr.io
+            username: ${{ github.actor }}
+            password: ${{ secrets.GITHUB_TOKEN }}
+
+        - name: build the docker image
+          run: |
+            cd docker && \
+            docker build . -f Dockerfile -t ghcr.io/${{github.repository}}/suppository:latest
+
+        - name: push the docker image
+          id: push-docker-image
+          run: docker push ghcr.io/${{github.repository}}/suppository:latest
