@@ -1,19 +1,21 @@
-This repository is for the docker container "suppository" which exists as a full toolchain to compile homebrew for the Nintendo Switch.
+This repository is for the former docker container "suppository" which existed as a full toolchain to compile homebrew for the Nintendo Switch, and now is instead for a general GIT workflow atmosphere release suite.
 
-This container can still be used to compile atmosphere by using the following command, and output the compiled release (release .zip and fusee.bin) it in the directory you run the command from:
+The following commands can be used to compile atmosphere, and output the compiled release (release .zip and fusee.bin) it in the directory you run the command from:
 
-Container rebuilt with latest dkp and packages the time of the last: 22nd of October 2024.
 
 Current example below is the build instructions that produce atmosphere 1.8.0 (22nd of october 2024), note the "haze" and "daybreak" .nro's are made before atmosphere because of issues with paralell thread makes in atmospheres's codebase.
 
+
+note as of 24.10.2024: the docker container on dockerhub borntohonk/suppository, is deprecated until it otherwise would be needed again as devkitpro/devkita64 is now viable to compile atmosphere.
+
 ```
 
-docker pull borntohonk/suppository:latest
+sudo docker pull devkitpro/devkita64:latest
 
 sudo docker run --name suppository \
  --rm \
  --volume $PWD/.:/out \
- borntohonk/suppository:latest /bin/bash -c \
+ devkitpro/devkita64:latest /bin/bash -c \
  "cd /build && \
  git clone https://github.com/Atmosphere-NX/libnx.git && \
  git -C libnx fetch && \
@@ -41,11 +43,12 @@ below are instructions that instead use build.sh and pack.sh from this repositor
 
 
 ```
+sudo docker pull devkitpro/devkita64:latest
 
 sudo docker run --name suppository \
  --rm \
  --volume $PWD/.:/out \
- borntohonk/suppository:latest /bin/bash -c \
+ devkitpro/devkita64:latest /bin/bash -c \
  "cd /build && \
  wget https://github.com/borntohonk/suppository/raw/refs/heads/master/build.sh && \
  wget https://github.com/borntohonk/suppository/raw/refs/heads/master/pack.sh && \

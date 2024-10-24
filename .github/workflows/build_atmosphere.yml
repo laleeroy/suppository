@@ -1,4 +1,4 @@
-name: Build and release Atmosphere
+name: Build and release Atmosphere with devkitpro
 
 on:
   workflow_dispatch:
@@ -6,7 +6,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: borntohonk/suppository
+    container: devkitpro/devkita64
 
     steps:
     - name: Checkout suppository
@@ -173,7 +173,7 @@ jobs:
         echo "" >> changelog.md && \
         echo "- Contains crash fix for users who use exosphere prodinfo blanker functionality and previously have used "incognito" to mess with their prodinfo. Credit for finding this goes to https://github.com/fruityloops1/nim-prodinfo-blank-fix" >> changelog.md && \
         echo "" >> changelog.md && \
-        echo "- This release was built with suppository, an atmosphere release suite, and docker container: https://github.com/$GITHUB_REPOSITORY" >> changelog.md && \
+        echo "- This release was built with suppository, a git workflow and atmosphere release suite: https://github.com/$GITHUB_REPOSITORY" >> changelog.md && \
         echo "" >> changelog.md && \
         echo "- This release was built with this workflow https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID and had the following repository variables set:" >> changelog.md && \
         echo "- ATMOSPHERE_REPOSITORY=${{ vars.ATMOSPHERE_REPOSITORY }}" >> changelog.md && \
