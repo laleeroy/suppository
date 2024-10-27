@@ -15,6 +15,12 @@ jobs:
         repository: borntohonk/suppository
         path: suppository
 
+    - name: Checkout sys-patch
+      uses: actions/checkout@v4
+      with:
+        repository: borntohonk/sys-patch
+        path: sys-patch
+
     - name: Checkout hbl
       uses: actions/checkout@v4
       with:
@@ -63,11 +69,12 @@ jobs:
         rm gh*.tar.gz && \
         rm -rf gh*
 
-    - name: Build libnx, nx-hbloader, nx-hbmenu and Atmosphere
+    - name: Build libnx, nx-hbloader, nx-hbmenu, sys-patch and Atmosphere
       run: |
         cp suppository/docker/tools/hactool /bin/hactool && \
         make -C libnx -j$(nproc) && \
         make -C libnx install && \
+        make -C sys-patch -j$(nproc) dist && \
         make -C nx-hbloader -j$(nproc) && \
         make -C nx-hbmenu nx -j$(nproc) && \
         make -C Atmosphere/troposphere/haze -j$(nproc) && \
@@ -131,6 +138,7 @@ jobs:
         mkdir temp/switch && \
         cp Atmosphere/out/nin*/release/fusee.bin temp/bootloader/payloads/fusee.bin && \
         unzip -o Atmosphere/out/nin*/release/atmosphere-*.zip -d temp/ && \
+        unzip -o sys-patch/sys-patch.zip -d temp/ && \
         cp nx-hbloader/hbl.nsp temp/atmosphere/hbl.nsp && \
         cp nx-hbmenu/nx-hbmenu.nro temp/hbmenu.nro && \
         cd temp && \
@@ -172,6 +180,8 @@ jobs:
         echo "- bootloader/payloads/tegraexplorer.bin is provided and is the version currently obtained at https://github.com/suchmememanyskill/TegraExplorer/releases/${{ env.TEXPLORERVER }}" >> changelog.md && \
         echo "" >> changelog.md && \
         echo "- Contains crash fix for users who use exosphere prodinfo blanker functionality and previously have used "incognito" to mess with their prodinfo. Credit for finding this goes to https://github.com/fruityloops1/nim-prodinfo-blank-fix" >> changelog.md && \
+        echo "" >> changelog.md && \
+        echo "- Contains sys-patch as redundancy, compiled during this release from: https://github.com/borntohonk/sys-patch " >> changelog.md && \
         echo "" >> changelog.md && \
         echo "- This release was built with suppository, a git workflow and atmosphere release suite: https://github.com/$GITHUB_REPOSITORY" >> changelog.md && \
         echo "" >> changelog.md && \
