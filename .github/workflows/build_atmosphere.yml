@@ -15,12 +15,6 @@ jobs:
         repository: borntohonk/suppository
         path: suppository
 
-    - name: Checkout switch-ghidra-guides
-      uses: actions/checkout@v4
-      with:
-        repository: borntohonk/Switch-Ghidra-Guides
-        path: sgg
-
     - name: Checkout sys-patch
       uses: actions/checkout@v4
       with:
@@ -122,17 +116,6 @@ jobs:
         echo "LIBNXHASH=${LIBNXHASH}" >> $GITHUB_ENV
         echo "SYSPATCHHASH=${SYSPATCHHASH}" >> $GITHUB_ENV
 
-    - name: Fetch and process firmware files
-      run: |
-        TAGVERSION=$(curl -s https://api.github.com/repos/THZoria/NX_Firmware/releases/latest | grep "tag_name" | head -1 | cut -d '"' -f 4)
-        wget -q $(curl -s https://api.github.com/repos/THZoria/NX_Firmware/releases/latest | grep "browser_download_url" | head -1 | cut -d '"' -f 4) && \
-        echo "Firmware $TAGVERSION" && \
-        mkdir sgg/firmware && \
-        unzip -qqo Firmware*.zip -d sgg/firmware && \
-        rm Firmware*.zip && \
-        cd sgg && \
-        python scripts/make_patches.py
-
     - name: Bundle up Atmosphere, nx-hbmenu, nx-hbloader, TegraExplorer and hekate
       run: |
         mkdir temp && \
@@ -158,7 +141,6 @@ jobs:
         mkdir temp/switch && \
         cp Atmosphere/out/nin*/release/fusee.bin temp/bootloader/payloads/fusee.bin && \
         unzip -qqo Atmosphere/out/nin*/release/atmosphere-*.zip -d temp/ && \
-        unzip -qqo sgg/patches.zip -d temp/ && \
         unzip -qqo sys-patch/sys-patch.zip -d temp/ && \
         cp nx-hbloader/hbl.nsp temp/atmosphere/hbl.nsp && \
         cp nx-hbmenu/nx-hbmenu.nro temp/hbmenu.nro && \
