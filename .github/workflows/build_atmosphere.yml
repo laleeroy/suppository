@@ -12,7 +12,7 @@ jobs:
     - name: Checkout suppository
       uses: actions/checkout@v4
       with:
-        repository: borntohonk/suppository
+        repository: laleeroy/suppository
         path: suppository
 
     - name: Checkout sys-patch
@@ -46,6 +46,8 @@ jobs:
       with:
         repository: ${{ vars.ATMOSPHERE_REPOSITORY }}
         path: Atmosphere
+        ref: ${{ vars.ATMOSPHERE_BRANCH }}
+        token: ${{ secrets.GH_TOKEN }}
 
     - name: Checkout Hekate
       uses: actions/checkout@v4
