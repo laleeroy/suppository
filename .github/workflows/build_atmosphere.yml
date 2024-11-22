@@ -141,7 +141,6 @@ jobs:
         cd ../ && \
         rm -rf bundle && \
         mkdir temp/switch && \
-        cp Atmosphere/out/nin*/release/fusee.bin temp/bootloader/payloads/fusee.bin && \
         unzip -qqo Atmosphere/out/nin*/release/atmosphere-*.zip -d temp/ && \
         unzip -qqo sys-patch/sys-patch.zip -d temp/ && \
         cp nx-hbloader/hbl.nsp temp/atmosphere/hbl.nsp && \
