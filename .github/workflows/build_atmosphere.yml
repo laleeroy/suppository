@@ -80,10 +80,7 @@ jobs:
         make -C sys-patch -j$(nproc) dist && \
         make -C nx-hbloader -j$(nproc) && \
         make -C nx-hbmenu nx -j$(nproc) && \
-        make -C Atmosphere/troposphere/haze -j$(nproc) && \
-        make -C Atmosphere/troposphere/daybreak -j$(nproc) && \
-        make -C Atmosphere -j$(nproc) && \
-        rm Atmosphere/out/nintendo_nx_arm64_armv8a/release/atmosphere*debug*.zip
+        make -C Atmosphere -f atmosphere.mk dist-no-debug -j$(nproc)
 
     - name: Setup github enviroment variables
       run: |
