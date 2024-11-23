@@ -74,7 +74,7 @@ jobs:
       with:
         include-hidden-files: true
         overwrite: true
-        name: Pack.zip
+        name: Pack
         path: Atmosphere/out/nintendo_nx_arm64_armv8a/release/
 
     - name: Publish bundle to target repository
@@ -105,4 +105,4 @@ jobs:
         echo "- TARGET_REPOSITORY=${{ vars.TARGET_REPOSITORY }}" >> changelog.md && \
         echo "- SYSPATCH_REPOSITORY=${{ vars.SYSPATCH_REPOSITORY }}" >> changelog.md && \
         echo "" >> changelog.md && \
-        gh release create Tags -F changelog.md Filename.zip --title "Title" --repo github.com/${{ vars.TARGET_REPOSITORY }}
+        gh release create Tags -F changelog.md Pack.zip --title "Title" --repo github.com/${{ vars.TARGET_REPOSITORY }}
