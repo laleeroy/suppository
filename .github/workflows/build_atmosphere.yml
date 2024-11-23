@@ -9,93 +9,93 @@ jobs:
     container: devkitpro/devkita64
 
     steps:
-    - name: Checkout suppository
-      uses: actions/checkout@v4
-      with:
-        repository: laleeroy/suppository
-        path: suppository
+      - name: Checkout suppository
+        uses: actions/checkout@v4
+        with:
+          repository: laleeroy/suppository
+          path: suppository
 
-    - name: Install jq
-      run: sudo apt-get update && sudo apt-get install -y jq
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
 
-    - name: Checkout Atmosphere
-      uses: actions/checkout@v4
-      with:
-        repository: ${{ vars.ATMOSPHERE_REPOSITORY }}
-        path: Atmosphere
-        ref: ${{ vars.ATMOSPHERE_BRANCH }}
-        token: ${{ secrets.GH_TOKEN }}
+      - name: Checkout Atmosphere
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ vars.ATMOSPHERE_REPOSITORY }}
+          path: Atmosphere
+          ref: ${{ vars.ATMOSPHERE_BRANCH }}
+          token: ${{ secrets.GH_TOKEN }}
 
-    - name: Checkout libnx
-      uses: actions/checkout@v4
-      with:
-        repository: ${{ vars.LIBNX_REPOSITORY }}
-        path: libnx
-        ref: ${{ vars.LIBNX_BRANCH }}
+      - name: Checkout libnx
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ vars.LIBNX_REPOSITORY }}
+          path: libnx
+          ref: ${{ vars.LIBNX_BRANCH }}
 
-    - name: Fetch git cli
-      run: |
-        wget -q $(curl -s https://api.github.com/repos/cli/cli/releases/latest | grep "browser_download_url" | grep "linux_amd64.tar.gz" | head -1 | cut -d '"' -f 4)
-        tar -xzf gh*.tar.gz && \
-        chmod +x gh*/bin/gh && \
-        cp gh*/bin/gh /bin/gh && \
-        rm gh*.tar.gz && \
-        rm -rf gh*
+      - name: Fetch git cli
+        run: |
+          wget -q $(curl -s https://api.github.com/repos/cli/cli/releases/latest | grep "browser_download_url" | grep "linux_amd64.tar.gz" | head -1 | cut -d '"' -f 4)
+          tar -xzf gh*.tar.gz && \
+          chmod +x gh*/bin/gh && \
+          cp gh*/bin/gh /bin/gh && \
+          rm gh*.tar.gz && \
+          rm -rf gh*
 
-    - name: Build libnx and Atmosphere
-      run: |
-        cp suppository/docker/tools/hactool /bin/hactool && \
-        make -C libnx -j$(nproc) && \
-        make -C libnx install && \
-        make -C Atmosphere -f atmosphere.mk dist-no-debug -j$(nproc)
+      - name: Build libnx and Atmosphere
+        run: |
+          cp suppository/docker/tools/hactool /bin/hactool && \
+          make -C libnx -j$(nproc) && \
+          make -C libnx install && \
+          make -C Atmosphere -f atmosphere.mk dist-no-debug -j$(nproc)
 
-    - name: Setup github enviroment variables
-      run: |
-        AMSMAJORVER=$(grep 'define ATMOSPHERE_RELEASE_VERSION_MAJOR\b' Atmosphere/libraries/libvapours/include/vapours/ams/ams_api_version.h | tr -s [:blank:] | cut -d' ' -f3)
-        AMSMINORVER=$(grep 'define ATMOSPHERE_RELEASE_VERSION_MINOR\b' Atmosphere/libraries/libvapours/include/vapours/ams/ams_api_version.h | tr -s [:blank:] | cut -d' ' -f3)
-        AMSMICROVER=$(grep 'define ATMOSPHERE_RELEASE_VERSION_MICRO\b' Atmosphere/libraries/libvapours/include/vapours/ams/ams_api_version.h | tr -s [:blank:] | cut -d' ' -f3)
-        HOS_MAJORVER=$(grep 'define ATMOSPHERE_SUPPORTED_HOS_VERSION_MAJOR\b' Atmosphere/libraries/libvapours/include/vapours/ams/ams_api_version.h | tr -s [:blank:] | cut -d' ' -f3)
-        HOS_MINORVER=$(grep 'define ATMOSPHERE_SUPPORTED_HOS_VERSION_MINOR\b' Atmosphere/libraries/libvapours/include/vapours/ams/ams_api_version.h | tr -s [:blank:] | cut -d' ' -f3)
-        HOS_MICROVER=$(grep 'define ATMOSPHERE_SUPPORTED_HOS_VERSION_MICRO\b' Atmosphere/libraries/libvapours/include/vapours/ams/ams_api_version.h | tr -s [:blank:] | cut -d' ' -f3)
-        AMSVER=$AMSMAJORVER.$AMSMINORVER.$AMSMICROVER
-        HOSVER=$HOS_MAJORVER.$HOS_MINORVER.$HOS_MICROVER
-        AMSZIPHASH=$(git -C Atmosphere rev-parse HEAD | cut -c -9)
-        AMSHASH=$(git -C Atmosphere rev-parse HEAD)
-        echo "AMSVER=${AMSVER}" >> $GITHUB_ENV
-        echo "HOSVER=${HOSVER}" >> $GITHUB_ENV
-        echo "NX_HBLOADER_VERSION=$(curl -s https://api.github.com/repos/switchbrew/nx-hbloader/releases/latest | jq -r ".tag_name" | tr -d 'v')" >> $GITHUB_ENV
-        echo "HBMENU_VERSION=$(curl -s https://api.github.com/repos/switchbrew/nx-hbmenu/releases/latest | jq -r ".tag_name" | tr -d 'v')" >> $GITHUB_ENV
-        echo "AMSZIPHASH=${AMSZIPHASH}" >> $GITHUB_ENV
-        echo "HEKATE_VERSION=$(curl -s https://api.github.com/repos/CTCaer/hekate/releases/latest | jq -r ".tag_name" | tr -d 'v')" >> $GITHUB_ENV
-        echo "AMSHASH=${AMSHASH}" >> $GITHUB_ENV
+      - name: Setup GitHub environment variables
+        run: |
+          AMSMAJORVER=$(grep 'define ATMOSPHERE_RELEASE_VERSION_MAJOR\b' Atmosphere/libraries/libvapours/include/vapours/ams/ams_api_version.h | tr -s [:blank:] | cut -d' ' -f3)
+          AMSMINORVER=$(grep 'define ATMOSPHERE_RELEASE_VERSION_MINOR\b' Atmosphere/libraries/libvapours/include/vapours/ams/ams_api_version.h | tr -s [:blank:] | cut -d' ' -f3)
+          AMSMICROVER=$(grep 'define ATMOSPHERE_RELEASE_VERSION_MICRO\b' Atmosphere/libraries/libvapours/include/vapours/ams/ams_api_version.h | tr -s [:blank:] | cut -d' ' -f3)
+          HOS_MAJORVER=$(grep 'define ATMOSPHERE_SUPPORTED_HOS_VERSION_MAJOR\b' Atmosphere/libraries/libvapours/include/vapours/ams/ams_api_version.h | tr -s [:blank:] | cut -d' ' -f3)
+          HOS_MINORVER=$(grep 'define ATMOSPHERE_SUPPORTED_HOS_VERSION_MINOR\b' Atmosphere/libraries/libvapours/include/vapours/ams/ams_api_version.h | tr -s [:blank:] | cut -d' ' -f3)
+          HOS_MICROVER=$(grep 'define ATMOSPHERE_SUPPORTED_HOS_VERSION_MICRO\b' Atmosphere/libraries/libvapours/include/vapours/ams/ams_api_version.h | tr -s [:blank:] | cut -d' ' -f3)
+          AMSVER=$AMSMAJORVER.$AMSMINORVER.$AMSMICROVER
+          HOSVER=$HOS_MAJORVER.$HOS_MINORVER.$HOS_MICROVER
+          AMSZIPHASH=$(git -C Atmosphere rev-parse HEAD | cut -c -9)
+          AMSHASH=$(git -C Atmosphere rev-parse HEAD)
+          echo "AMSVER=${AMSVER}" >> $GITHUB_ENV
+          echo "HOSVER=${HOSVER}" >> $GITHUB_ENV
+          echo "NX_HBLOADER_VERSION=$(curl -s https://api.github.com/repos/switchbrew/nx-hbloader/releases/latest | jq -r ".tag_name" | tr -d 'v')" >> $GITHUB_ENV
+          echo "HBMENU_VERSION=$(curl -s https://api.github.com/repos/switchbrew/nx-hbmenu/releases/latest | jq -r ".tag_name" | tr -d 'v')" >> $GITHUB_ENV
+          echo "AMSZIPHASH=${AMSZIPHASH}" >> $GITHUB_ENV
+          echo "HEKATE_VERSION=$(curl -s https://api.github.com/repos/CTCaer/hekate/releases/latest | jq -r ".tag_name" | tr -d 'v')" >> $GITHUB_ENV
+          echo "AMSHASH=${AMSHASH}" >> $GITHUB_ENV
 
-    - name: Publish bundle to target repository
-      env: 
-        GH_TOKEN: ${{ secrets.GH_TOKEN }}
-      run: |
-        cd Atmosphere/out/nintendo_nx_arm64_armv8a/release/
-        echo "" >> changelog.md && \
-        echo "- This release supports up to FW version ${{ env.HOSVER }}" >> changelog.md && \
-        echo "" >> changelog.md && \
-        echo "- The intention of the proposed changes enable running homebrew games on consoles that run Atmosphere. Some of these homebrew games in circulation rely on these changes to run. Though there are controversial other usecases for the changes." >> changelog.md && \
-        echo "" >> changelog.md && \
-        echo "- This release is intended for demonstrative purposes only. Any inquries or questions can be submitted at https://github.com/${{ vars.TARGET_REPOSITORY }}/issues" >> changelog.md && \
-        echo "" >> changelog.md && \
-        echo "- This release does include HBL and HBMENU, and the non-debug output from compiling commit https://github.com/${{ vars.TARGET_REPOSITORY }}/commit/${{ env.AMSHASH }}"  >> changelog.md && \
-        echo "" >> changelog.md && \
-        echo "- dns.mitm's default.txt host file has been altered to provide a block for all nintendo servers to supplement the connectivity test patches this fork provides." >> changelog.md && \
-        echo "" >> changelog.md && \
-        echo "- fusee.bin is located in /bootloader/payloads/fusee.bin for convenience" >> changelog.md && \
-        echo "" >> changelog.md && \
-        echo "- Contains crash fix for users who use exosphere prodinfo blanker functionality and previously have used "incognito" to mess with their prodinfo. Credit for finding this goes to https://github.com/fruityloops1/nim-prodinfo-blank-fix" >> changelog.md && \
-        echo "" >> changelog.md && \
-        echo "- This release was built with suppository, a git workflow and atmosphere release suite: https://github.com/$GITHUB_REPOSITORY" >> changelog.md && \
-        echo "" >> changelog.md && \
-        echo "- This release was built with this workflow https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID and had the following repository variables set:" >> changelog.md && \
-        echo "- ATMOSPHERE_REPOSITORY=${{ vars.ATMOSPHERE_REPOSITORY }}" >> changelog.md && \
-        echo "- LIBNX_REPOSITORY=${{ vars.LIBNX_REPOSITORY }}" >> changelog.md && \
-        echo "- LIBNX_BRANCH=${{ vars.LIBNX_BRANCH }}" >> changelog.md && \
-        echo "- TARGET_REPOSITORY=${{ vars.TARGET_REPOSITORY }}" >> changelog.md && \
-        echo "- SYSPATCH_REPOSITORY=${{ vars.SYSPATCH_REPOSITORY }}" >> changelog.md && \
-        echo "" >> changelog.md && \
-        gh release create "v${{ env.AMSVER }}" -F changelog.md atmosphere*.zip --title "For FW ${HOSVER}and below" --repo github.com/${{ vars.TARGET_REPOSITORY }}
+      - name: Publish bundle to target repository
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          cd Atmosphere/out/nintendo_nx_arm64_armv8a/release/
+          cat <<EOF > changelog.md
+          - This release supports up to FW version ${{ env.HOSVER }}
+
+          - The intention of the proposed changes enable running homebrew games on consoles that run Atmosphere. Some of these homebrew games in circulation rely on these changes to run. Though there are controversial other usecases for the changes.
+
+          - This release is intended for demonstrative purposes only. Any inquiries or questions can be submitted at https://github.com/${{ vars.TARGET_REPOSITORY }}/issues
+
+          - This release does include HBL and HBMENU, and the non-debug output from compiling commit https://github.com/${{ vars.TARGET_REPOSITORY }}/commit/${{ env.AMSHASH }}
+
+          - dns.mitm's default.txt host file has been altered to provide a block for all Nintendo servers to supplement the connectivity test patches this fork provides.
+
+          - fusee.bin is located in /bootloader/payloads/fusee.bin for convenience.
+
+          - Contains crash fix for users who use exosphere prodinfo blanker functionality and previously have used "incognito" to mess with their prodinfo. Credit for finding this goes to https://github.com/fruityloops1/nim-prodinfo-blank-fix.
+
+          - This release was built with suppository, a git workflow and atmosphere release suite: https://github.com/$GITHUB_REPOSITORY
+
+          - This release was built with this workflow https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID and had the following repository variables set:
+            - ATMOSPHERE_REPOSITORY=${{ vars.ATMOSPHERE_REPOSITORY }}
+            - LIBNX_REPOSITORY=${{ vars.LIBNX_REPOSITORY }}
+            - LIBNX_BRANCH=${{ vars.LIBNX_BRANCH }}
+            - TARGET_REPOSITORY=${{ vars.TARGET_REPOSITORY }}
+            - SYSPATCH_REPOSITORY=${{ vars.SYSPATCH_REPOSITORY }}
+          EOF
+          gh release create "v${{ env.AMSVER }}" -F changelog.md atmosphere*.zip --title "For FW ${HOSVER} and below" --repo github.com/${{ vars.TARGET_REPOSITORY }}
