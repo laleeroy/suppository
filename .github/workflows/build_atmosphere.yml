@@ -95,4 +95,5 @@ jobs:
 
           - This release was built with this workflow https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID and had the following repository variables set:
           EOF
-          gh release create "${GITHUB_REF##*/}" -F changelog.md atmosphere*.zip --title "For Firmware ${HOSVER} and below" --repo github.com/${{ vars.TARGET_REPOSITORY }} -n "8BP-${GITHUB_REF##*/}.zip"
+          mv atmosphere*.zip "8BP-${GITHUB_REF##*/}.zip"
+          gh release create "${GITHUB_REF##*/}" -F changelog.md "8BP-${GITHUB_REF##*/}.zip" --title "For Firmware ${HOSVER} and below" --repo github.com/laleeroy/nxcfw
