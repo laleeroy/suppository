@@ -18,32 +18,6 @@ jobs:
     - name: Install jq
       run: sudo apt-get update && sudo apt-get install -y jq
 
-    - name: Checkout sys-patch
-      uses: actions/checkout@v4
-      with:
-        repository: ${{ vars.SYSPATCH_REPOSITORY }}
-        path: sys-patch
-        submodules: recursive
-
-    - name: Checkout hbl
-      uses: actions/checkout@v4
-      with:
-        repository: switchbrew/nx-hbloader
-        path: nx-hbloader
-
-    - name: Checkout hbmenu
-      uses: actions/checkout@v4
-      with:
-        repository: switchbrew/nx-hbmenu
-        path: nx-hbmenu
-
-    - name: Checkout TegraExplorer
-      uses: actions/checkout@v4
-      with:
-        fetch-tags: true
-        repository: suchmememanyskill/TegraExplorer
-        path: TegraExplorer
-
     - name: Checkout Atmosphere
       uses: actions/checkout@v4
       with:
@@ -51,13 +25,6 @@ jobs:
         path: Atmosphere
         ref: ${{ vars.ATMOSPHERE_BRANCH }}
         token: ${{ secrets.GH_TOKEN }}
-
-    - name: Checkout Hekate
-      uses: actions/checkout@v4
-      with:
-        fetch-tags: true
-        repository: CTCaer/hekate
-        path: hekate
 
     - name: Checkout libnx
       uses: actions/checkout@v4
@@ -75,14 +42,11 @@ jobs:
         rm gh*.tar.gz && \
         rm -rf gh*
 
-    - name: Build libnx, nx-hbloader, nx-hbmenu, sys-patch and Atmosphere
+    - name: Build libnx and Atmosphere
       run: |
         cp suppository/docker/tools/hactool /bin/hactool && \
         make -C libnx -j$(nproc) && \
         make -C libnx install && \
-        make -C sys-patch -j$(nproc) dist && \
-        make -C nx-hbloader -j$(nproc) && \
-        make -C nx-hbmenu nx -j$(nproc) && \
         make -C Atmosphere -f atmosphere.mk dist-no-debug -j$(nproc)
 
     - name: Setup github enviroment variables
@@ -118,43 +82,13 @@ jobs:
         echo "LIBNXHASH=${LIBNXHASH}" >> $GITHUB_ENV
         echo "SYSPATCHHASH=${SYSPATCHHASH}" >> $GITHUB_ENV
 
-    - name: Bundle up Atmosphere, nx-hbmenu, nx-hbloader, TegraExplorer and hekate
-      run: |
-        mkdir temp && \
-        mkdir temp/bootloader && \
-        mkdir temp/bootloader/payloads && \
-        mkdir bundle && \
-        cd bundle && \
-        sleep 1 && \
-        wget -q $(curl -s https://api.github.com/repos/CTCaer/hekate/releases/latest | grep "browser_download_url" | head -1 | cut -d '"' -f 4) && \
-        unzip -qqo hekate*.zip -d ../temp && \
-        rm hekate*.zip && \
-        mv ../temp/hekate_ctcaer_*.bin ../temp/hekate.bin && \
-        mkdir ../temp/atmosphere && \
-        mkdir ../temp/atmosphere/hosts && \
-        mkdir ../temp/config && \
-        wget -q $(curl -s https://api.github.com/repos/suchmememanyskill/TegraExplorer/releases/latest | grep "browser_download_url" | head -1 | cut -d '"' -f 4) -O ../temp/bootloader/payloads/TegraExplorer.bin && \
-        sleep 1 && \
-        cp ../suppository/docker/configs/emummc.txt ../temp/atmosphere/hosts/emummc.txt && \
-        cp ../suppository/docker/configs/sysmmc.txt ../temp/atmosphere/hosts/sysmmc.txt && \
-        cp ../suppository/docker/configs/exosphere.ini ../temp/exosphere.ini && \
-        cd ../ && \
-        rm -rf bundle && \
-        mkdir temp/switch && \
-        unzip -qqo Atmosphere/out/nin*/release/atmosphere-*.zip -d temp/ && \
-        unzip -qqo sys-patch/sys-patch.zip -d temp/ && \
-        cp nx-hbloader/hbl.nsp temp/atmosphere/hbl.nsp && \
-        cp nx-hbmenu/nx-hbmenu.nro temp/hbmenu.nro && \
-        cd temp && \
-        zip -qr ../atmosphere-${{ env.AMSVER }}-master-${{ env.AMSZIPHASH }}+hbl-${{ env.HBLVER }}+hbmenu-${{ env.HBMENUVER }}.zip *
-
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
         include-hidden-files: true
         overwrite: true
         name: atmosphere-${{ env.AMSVER }}-master-${{ env.AMSZIPHASH }}+hbl-${{ env.HBLVER }}+hbmenu-${{ env.HBMENUVER }}.zip
-        path: temp/
+        path: Atmosphere/out/nintendo_nx_arm64_armv8a/release/
 
     - name: Publish bundle to target repository
       env: 
