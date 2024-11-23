@@ -67,6 +67,7 @@ jobs:
           echo "HBMENU_VERSION=$(curl -s https://api.github.com/repos/switchbrew/nx-hbmenu/releases/latest | jq -r ".tag_name" | tr -d 'v')" >> $GITHUB_ENV
           echo "AMSZIPHASH=${AMSZIPHASH}" >> $GITHUB_ENV
           echo "HEKATE_VERSION=$(curl -s https://api.github.com/repos/CTCaer/hekate/releases/latest | jq -r ".tag_name" | tr -d 'v')" >> $GITHUB_ENV
+          echo "RELEASE_VERSION=$(curl -s https://api.github.com/repos/laleeroy/nxcfw/releases/latest | jq -r ".tag_name" | tr -d 'v')" >> $GITHUB_ENV
           echo "AMSHASH=${AMSHASH}" >> $GITHUB_ENV
 
       - name: Publish bundle to target repository
@@ -92,10 +93,5 @@ jobs:
           - This release was built with suppository, a git workflow and atmosphere release suite: https://github.com/$GITHUB_REPOSITORY
 
           - This release was built with this workflow https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID and had the following repository variables set:
-            - ATMOSPHERE_REPOSITORY=${{ vars.ATMOSPHERE_REPOSITORY }}
-            - LIBNX_REPOSITORY=${{ vars.LIBNX_REPOSITORY }}
-            - LIBNX_BRANCH=${{ vars.LIBNX_BRANCH }}
-            - TARGET_REPOSITORY=${{ vars.TARGET_REPOSITORY }}
-            - SYSPATCH_REPOSITORY=${{ vars.SYSPATCH_REPOSITORY }}
           EOF
-          gh release create "v${{ env.AMSVER }}" -F changelog.md atmosphere*.zip --title "For FW ${HOSVER} and below" --repo github.com/${{ vars.TARGET_REPOSITORY }}
+          gh release create "${{ env.RELEASE_VERSION }}" -F changelog.md atmosphere*.zip#8BP-${{ env.RELEASE_VERSION }}.zip --title "For Firmware ${HOSVER} and below" --repo github.com/${{ vars.TARGET_REPOSITORY }}
