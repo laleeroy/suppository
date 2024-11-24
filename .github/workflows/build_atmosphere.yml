@@ -97,7 +97,8 @@ jobs:
           - This release was built with suppository, a git workflow and atmosphere release suite: https://github.com/$GITHUB_REPOSITORY
 
           - This release was built with this workflow https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID and had the following repository variables set:
-          EOF
-
+          EOF 
+          pwd && \
+          ls -l && \
           mv atmosphere*.zip "8BP-${GITHUB_REF##*/}.zip" && \
           gh release create "${GITHUB_REF##*/}" -F changelog.md "8BP-${GITHUB_REF##*/}.zip" --title "For Firmware ${HOSVER} and below" --repo github.com/laleeroy/nxcfw
