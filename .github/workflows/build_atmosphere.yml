@@ -76,9 +76,9 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
-          cd Atmosphere/out/nintendo_nx_arm64_armv8a/release/ &&
-          echo "${GITHUB_REF##*/}" > version &&
-          zip -u atmosphere*.zip atmosphere/config/version &&
+          cd Atmosphere/out/nintendo_nx_arm64_armv8a/release/ && \
+          echo "${GITHUB_REF##*/}" > version && \
+          zip -u atmosphere*.zip atmosphere/config/version && \
           cat <<EOF > changelog.md
           - This release supports up to FW version ${{ env.HOSVER }}
 
@@ -98,5 +98,6 @@ jobs:
 
           - This release was built with this workflow https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID and had the following repository variables set:
           EOF
-          mv atmosphere*.zip "8BP-${GITHUB_REF##*/}.zip" &&
+
+          mv atmosphere*.zip "8BP-${GITHUB_REF##*/}.zip" && \
           gh release create "${GITHUB_REF##*/}" -F changelog.md "8BP-${GITHUB_REF##*/}.zip" --title "For Firmware ${HOSVER} and below" --repo github.com/laleeroy/nxcfw
