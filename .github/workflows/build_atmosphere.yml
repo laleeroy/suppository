@@ -9,17 +9,14 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container: devkitpro/devkita64
-
     steps:
       - name: Checkout suppository
         uses: actions/checkout@v4
         with:
           repository: laleeroy/suppository
           path: suppository
-
       - name: Install jq
         run: sudo apt-get update && sudo apt-get install -y jq
-
       - name: Checkout Atmosphere
         uses: actions/checkout@v4
         with:
@@ -27,14 +24,12 @@ jobs:
           path: Atmosphere
           ref: ${{ vars.ATMOSPHERE_BRANCH }}
           token: ${{ secrets.GH_TOKEN }}
-
       - name: Checkout libnx
         uses: actions/checkout@v4
         with:
           repository: ${{ vars.LIBNX_REPOSITORY }}
           path: libnx
           ref: ${{ vars.LIBNX_BRANCH }}
-
       - name: Fetch git cli
         run: |
           wget -q $(curl -s https://api.github.com/repos/cli/cli/releases/latest | grep "browser_download_url" | grep "linux_amd64.tar.gz" | head -1 | cut -d '"' -f 4)
@@ -43,14 +38,12 @@ jobs:
           cp gh*/bin/gh /bin/gh && \
           rm gh*.tar.gz && \
           rm -rf gh*
-
       - name: Build libnx and Atmosphere
         run: |
           cp suppository/docker/tools/hactool /bin/hactool && \
           make -C libnx -j$(nproc) && \
           make -C libnx install && \
           make -C Atmosphere -f atmosphere.mk dist-no-debug -j$(nproc)
-
       - name: Setup GitHub environment variables
         run: |
           AMSMAJORVER=$(grep 'define ATMOSPHERE_RELEASE_VERSION_MAJOR\b' Atmosphere/libraries/libvapours/include/vapours/ams/ams_api_version.h | tr -s [:blank:] | cut -d' ' -f3)
@@ -70,30 +63,23 @@ jobs:
           echo "AMSZIPHASH=${AMSZIPHASH}" >> $GITHUB_ENV
           echo "HEKATE_VERSION=$(curl -s https://api.github.com/repos/CTCaer/hekate/releases/latest | jq -r ".tag_name" | tr -d 'v')" >> $GITHUB_ENV
           echo "AMSHASH=${AMSHASH}" >> $GITHUB_ENV
-
       - name: Publish bundle to target repository
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
-          cd Atmosphere/out/nintendo_nx_arm64_armv8a/release/
-          cat <<EOF > changelog.md
-          - This release supports up to FW version ${{ env.HOSVER }}
-
-          - The intention of the proposed changes enable running homebrew games on consoles that run Atmosphere. Some of these homebrew games in circulation rely on these changes to run. Though there are controversial other usecases for the changes.
-
-          - This release is intended for demonstrative purposes only. Any inquiries or questions can be submitted at https://github.com/${{ vars.TARGET_REPOSITORY }}/issues
-
-          - This release does include HBL and HBMENU, and the non-debug output from compiling commit https://github.com/${{ vars.TARGET_REPOSITORY }}/commit/${{ env.AMSHASH }}
-
-          - dns.mitm's default.txt host file has been altered to provide a block for all Nintendo servers to supplement the connectivity test patches this fork provides.
-
-          - fusee.bin is located in /bootloader/payloads/fusee.bin for convenience.
-
-          - Contains crash fix for users who use exosphere prodinfo blanker functionality and previously have used "incognito" to mess with their prodinfo. Credit for finding this goes to https://github.com/fruityloops1/nim-prodinfo-blank-fix.
-
-          - This release was built with suppository, a git workflow and atmosphere release suite: https://github.com/$GITHUB_REPOSITORY
-
-          - This release was built with this workflow https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID and had the following repository variables set:
-          EOF
-          mv atmosphere*.zip "8BP-${GITHUB_REF##*/}.zip"
+          cd Atmosphere/out/nintendo_nx_arm64_armv8a/release/ && \
+          echo "${GITHUB_REF##*/}" > version && \
+          zip -u atmosphere*.zip atmosphere/config/version && \
+          cat <<EOF > changelog.md && \
+          - This release supports up to FW version ${{ env.HOSVER }} && \
+          - The intention of the proposed changes enable running homebrew games on consoles that run Atmosphere. Some of these homebrew games in circulation rely on these changes to run. Though there are controversial other usecases for the changes. && \
+          - This release is intended for demonstrative purposes only. Any inquiries or questions can be submitted at https://github.com/${{ vars.TARGET_REPOSITORY }}/issues && \
+          - This release does include HBL and HBMENU, and the non-debug output from compiling commit https://github.com/${{ vars.TARGET_REPOSITORY }}/commit/${{ env.AMSHASH }} && \
+          - dns.mitm's default.txt host file has been altered to provide a block for all Nintendo servers to supplement the connectivity test patches this fork provides. && \
+          - fusee.bin is located in /bootloader/payloads/fusee.bin for convenience. && \
+          - Contains crash fix for users who use exosphere prodinfo blanker functionality and previously have used "incognito" to mess with their prodinfo. Credit for finding this goes to https://github.com/fruityloops1/nim-prodinfo-blank-fix. && \
+          - This release was built with suppository, a git workflow and atmosphere release suite: https://github.com/$GITHUB_REPOSITORY && \
+          - This release was built with this workflow https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID and had the following repository variables set: && \
+          EOF && \
+          mv atmosphere*.zip "8BP-${GITHUB_REF##*/}.zip" && \
           gh release create "${GITHUB_REF##*/}" -F changelog.md "8BP-${GITHUB_REF##*/}.zip" --title "For Firmware ${HOSVER} and below" --repo github.com/laleeroy/nxcfw
