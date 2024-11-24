@@ -76,6 +76,8 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           cd Atmosphere/out/nintendo_nx_arm64_armv8a/release/
+          echo "${GITHUB_REF##*/}" > version
+          zip -u atmosphere*.zip atmosphere/config/version
           cat <<EOF > changelog.md
           - This release supports up to FW version ${{ env.HOSVER }}
 
