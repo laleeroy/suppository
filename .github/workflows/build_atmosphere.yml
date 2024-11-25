@@ -80,9 +80,10 @@ jobs:
 
       - name: Bundle release
         run: |
+          cd $GITHUB_WORKSPACE/configs && \
+          bash update.sh && \
+          echo "${GITHUB_REF##*/}" > atmosphere/version && \
           cd $GITHUB_WORKSPACE && \
-          bash configs/update.sh && \
-          echo "${GITHUB_REF##*/}" > configs/atmosphere/version && \
           mkdir tmp && \
           unzip Atmosphere/out/nintendo_nx_arm64_armv8a/release/atmosphere.zip -d $GITHUB_WORKSPACE/tmp && \
           rsync -av --exclude='update-hb.sh' --exclude='.git*' configs/ /tmp && \
