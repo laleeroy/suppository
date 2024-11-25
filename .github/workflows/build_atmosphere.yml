@@ -84,10 +84,10 @@ jobs:
           bash update.sh && \
           echo "${GITHUB_REF##*/}" > atmosphere/version && \
           cd $GITHUB_WORKSPACE && \
-          mkdir tmp && \
-          unzip Atmosphere/out/nintendo_nx_arm64_armv8a/release/atmosphere*.zip -d $GITHUB_WORKSPACE/tmp && \
-          rsync -av --exclude='update-hb.sh' --exclude='.git*' configs/ /tmp && \
-          cd tmp && zip -qr ../"8BP-${GITHUB_REF##*/}.zip" *
+          mkdir temp && \
+          unzip Atmosphere/out/nintendo_nx_arm64_armv8a/release/atmosphere*.zip -d $GITHUB_WORKSPACE/temp && \
+          rsync -av --exclude='update-hb.sh' --exclude='.git*' configs/ /temp && \
+          cd temp && zip -qr ../"8BP-${GITHUB_REF##*/}.zip" *
 
       - name: Publish bundle to target repository
         env:
