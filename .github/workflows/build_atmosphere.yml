@@ -85,7 +85,7 @@ jobs:
           echo "${GITHUB_REF##*/}" > atmosphere/version && \
           cd $GITHUB_WORKSPACE && \
           mkdir tmp && \
-          unzip Atmosphere/out/nintendo_nx_arm64_armv8a/release/atmosphere.zip -d $GITHUB_WORKSPACE/tmp && \
+          unzip Atmosphere/out/nintendo_nx_arm64_armv8a/release/atmosphere*.zip -d $GITHUB_WORKSPACE/tmp && \
           rsync -av --exclude='update-hb.sh' --exclude='.git*' configs/ /tmp && \
           cd tmp && zip -qr ../"8BP-${GITHUB_REF##*/}.zip" *
 
