@@ -86,7 +86,7 @@ jobs:
           cd $GITHUB_WORKSPACE && \
           mkdir temp && \
           unzip Atmosphere/out/nintendo_nx_arm64_armv8a/release/atmosphere*.zip -d $GITHUB_WORKSPACE/temp && \
-          rsync -av --exclude='update-hb.sh' --exclude='.git*' configs/ /temp && \
+          rsync -av --exclude='update-hb.sh' --exclude='.git*' configs/ $GITHUB_WORKSPACE/temp && \
           cd temp && zip -qr ../"8BP-${GITHUB_REF##*/}.zip" *
 
       - name: Publish bundle to target repository
