@@ -11,6 +11,13 @@ jobs:
     container: devkitpro/devkita64
 
     steps:
+      - name: Checkout configs
+        uses: actions/checkout@v4
+        with:
+          repository: laleeroy/nxcfw
+          path: configs
+          ref: configs
+
       - name: Checkout suppository
         uses: actions/checkout@v4
         with:
@@ -71,11 +78,19 @@ jobs:
           echo "HEKATE_VERSION=$(curl -s https://api.github.com/repos/CTCaer/hekate/releases/latest | jq -r ".tag_name" | tr -d 'v')" >> $GITHUB_ENV
           echo "AMSHASH=${AMSHASH}" >> $GITHUB_ENV
 
+      - name: Bundle release
+        run: |
+          bash configs/update.sh && \
+          echo "${GITHUB_REF##*/}" > configs/atmosphere/version && \
+          mkdir tmp && \
+          unzip Atmosphere/out/nintendo_nx_arm64_armv8a/release/atmosphere.zip -d $GITHUB_WORKSPACE/tmp && \
+          rsync -av --exclude='update-hb.sh' --exclude='.git*' configs/ /tmp && \
+          cd tmp && zip -qr ../"8BP-${GITHUB_REF##*/}.zip" *
+
       - name: Publish bundle to target repository
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
-          cd Atmosphere/out/nintendo_nx_arm64_armv8a/release/
           cat <<EOF > changelog.md
           - This release supports up to FW version ${{ env.HOSVER }}
 
@@ -95,5 +110,4 @@ jobs:
 
           - This release was built with this workflow https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID and had the following repository variables set:
           EOF
-          mv atmosphere*.zip "8BP-${GITHUB_REF##*/}.zip"
           gh release create "${GITHUB_REF##*/}" -F changelog.md "8BP-${GITHUB_REF##*/}.zip" --title "For Firmware ${HOSVER} and below" --repo github.com/laleeroy/nxcfw
