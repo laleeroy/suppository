@@ -1,0 +1,92 @@
+name: Create a test build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: devkitpro/devkita64
+
+    steps:
+      - name: Checkout configs
+        uses: actions/checkout@v4
+        with:
+          repository: laleeroy/nxcfw
+          path: configs
+          ref: configs
+
+      - name: Checkout suppository
+        uses: actions/checkout@v4
+        with:
+          repository: laleeroy/suppository
+          path: suppository
+
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Checkout Atmosphere
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ vars.ATMOSPHERE_REPOSITORY }}
+          path: Atmosphere
+          ref: ${{ vars.ATMOSPHERE_BRANCH }}
+          token: ${{ secrets.GH_TOKEN }}
+
+      - name: Checkout libnx
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ vars.LIBNX_REPOSITORY }}
+          path: libnx
+          ref: ${{ vars.LIBNX_BRANCH }}
+
+      - name: Fetch git cli
+        run: |
+          wget -q $(curl -s https://api.github.com/repos/cli/cli/releases/latest | grep "browser_download_url" | grep "linux_amd64.tar.gz" | head -1 | cut -d '"' -f 4)
+          tar -xzf gh*.tar.gz && \
+          chmod +x gh*/bin/gh && \
+          cp gh*/bin/gh /bin/gh && \
+          rm gh*.tar.gz && \
+          rm -rf gh*
+
+      - name: Build libnx and Atmosphere
+        run: |
+          cp suppository/docker/tools/hactool /bin/hactool && \
+          make -C libnx -j$(nproc) && \
+          make -C libnx install && \
+          make -C Atmosphere -f atmosphere.mk dist-no-debug -j$(nproc)
+
+      - name: Setup GitHub environment variables
+        run: |
+          AMSMAJORVER=$(grep 'define ATMOSPHERE_RELEASE_VERSION_MAJOR\b' Atmosphere/libraries/libvapours/include/vapours/ams/ams_api_version.h | tr -s [:blank:] | cut -d' ' -f3)
+          AMSMINORVER=$(grep 'define ATMOSPHERE_RELEASE_VERSION_MINOR\b' Atmosphere/libraries/libvapours/include/vapours/ams/ams_api_version.h | tr -s [:blank:] | cut -d' ' -f3)
+          AMSMICROVER=$(grep 'define ATMOSPHERE_RELEASE_VERSION_MICRO\b' Atmosphere/libraries/libvapours/include/vapours/ams/ams_api_version.h | tr -s [:blank:] | cut -d' ' -f3)
+          HOS_MAJORVER=$(grep 'define ATMOSPHERE_SUPPORTED_HOS_VERSION_MAJOR\b' Atmosphere/libraries/libvapours/include/vapours/ams/ams_api_version.h | tr -s [:blank:] | cut -d' ' -f3)
+          HOS_MINORVER=$(grep 'define ATMOSPHERE_SUPPORTED_HOS_VERSION_MINOR\b' Atmosphere/libraries/libvapours/include/vapours/ams/ams_api_version.h | tr -s [:blank:] | cut -d' ' -f3)
+          HOS_MICROVER=$(grep 'define ATMOSPHERE_SUPPORTED_HOS_VERSION_MICRO\b' Atmosphere/libraries/libvapours/include/vapours/ams/ams_api_version.h | tr -s [:blank:] | cut -d' ' -f3)
+          AMSVER=$AMSMAJORVER.$AMSMINORVER.$AMSMICROVER
+          HOSVER=$HOS_MAJORVER.$HOS_MINORVER.$HOS_MICROVER
+          AMSZIPHASH=$(git -C Atmosphere rev-parse HEAD | cut -c -9)
+          echo "AMSVER=${AMSVER}" >> $GITHUB_ENV
+          echo "HOSVER=${HOSVER}" >> $GITHUB_ENV
+          echo "NX_HBLOADER_VERSION=$(curl -s https://api.github.com/repos/switchbrew/nx-hbloader/releases/latest | jq -r ".tag_name" | tr -d 'v')" >> $GITHUB_ENV
+          echo "HBMENU_VERSION=$(curl -s https://api.github.com/repos/switchbrew/nx-hbmenu/releases/latest | jq -r ".tag_name" | tr -d 'v')" >> $GITHUB_ENV
+          echo "AMSZIPHASH=${AMSZIPHASH}" >> $GITHUB_ENV
+          echo "HEKATE_VERSION=$(curl -s https://api.github.com/repos/CTCaer/hekate/releases/latest | jq -r ".tag_name" | tr -d 'v')" >> $GITHUB_ENV
+
+      - name: Bundle release
+        run: |
+          cd $GITHUB_WORKSPACE/configs && \
+          bash update.sh && \
+          echo "${{ env.AMSVER }}" > atmosphere/config/version && \
+          cd $GITHUB_WORKSPACE && \
+          mkdir temp && \
+          unzip Atmosphere/out/nintendo_nx_arm64_armv8a/release/atmosphere*.zip -d $GITHUB_WORKSPACE/temp && \
+          rsync -av --exclude='update-hb.sh' --exclude='.git*' configs/ $GITHUB_WORKSPACE/temp && \
+          cd temp && zip -qr ../"8BP-${{ env.AMSVER }}.zip" *
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Atmosphere-8BP-${{ env.AMSVER }}
+          path: 8BP-${{ env.AMSVER }}.zip
